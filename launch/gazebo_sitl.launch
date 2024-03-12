@@ -3,7 +3,8 @@
     <arg name="log_output" default="log"/>
     <arg name="model" default="$(find bluerov_ros_playground)/model/BlueRov2.urdf.xacro"/>
 
-    <arg name="fcu_url" default="udp://:14551@127.0.0.1:14549"/>
+    <!-- <arg name="fcu_url" default="udp://:14550@127.0.0.1:14549"/> -->
+    <arg name="fcu_url" default="udp://127.0.0.1:14551@" />
     <arg name="gcs_url" default="udp://:14549@127.0.0.1:14548"/>
     <arg name="system_id" default="255"/>
     <arg name="component_id" default="240"/>
@@ -15,18 +16,18 @@
     <!-- Launch Gazebo with underwater world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="paused" value="false"/>
-        <arg name="world_name" value="$(find freefloating_gazebo)/world/underwater.world"/>
+        <arg name="world_name" value="$(find bluerov_ros_playground)/worlds/underwater.world"/>
     </include>
 
     <group ns="BlueRov2">
         <!-- spawn in Gazebo with GUI -->
         <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)"/>
-        <node name="spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model BlueRov2 -param robot_description -x 0 -y 0 -z 0 -R 3.14927 -P 0 -Y 0"/>
+        <node name="spawner_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args=" -param robot_description -urdf -model BlueRov2 -x 0 -y 0 -z 0 "/>
         <rosparam file="$(find bluerov_ros_playground)/config/bluerov2_thrusters.yaml" command="load"/>
     </group>
 
     <!-- spawn terrain -->
-    <param name="terrain_description" command="$(find xacro)/xacro --inorder $(find freefloating_gazebo_demo)/terrain/shipwreck/terrain.sdf"/>
+    <param name="terrain_description" command="$(find xacro)/xacro --inorder $(find bluerov_ros_playground)/worlds/terrain.sdf"/>
     <node name="terrain_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -model terrain -param terrain_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0"/>
 
     <node pkg="mavros" type="mavros_node" name="mavros" required="true" clear_params="true" output="$(arg log_output)">
